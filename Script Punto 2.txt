@@ -1,0 +1,505 @@
+Scripts Puntos 2.
+
+// ESQUEMA DE VERIFICACION 
+
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      '_id',
+      'nombre',
+      'presupuesto',
+      'cant_sedes',
+      'direccion'
+    ],
+    properties: {
+      _id: {
+        bsonType: 'int',
+        description: 'El ID del bar debe ser un número entero y es obligatorio.'
+      },
+      nombre: {
+        bsonType: 'string',
+        description: 'El nombre del bar debe ser una cadena y es obligatorio.'
+      },
+      presupuesto: {
+        bsonType: 'string',
+        enum: ['Bajo', 'Medio', 'Alto'],
+        description: 'El presupuesto debe ser "Bajo", "Medio" o "Alto".'
+      },
+      cant_sedes: {
+        bsonType: 'int',
+        minimum: 1,
+        description: 'La cantidad de sedes debe ser un número mayor o igual a 1.'
+      },
+      direccion: {
+        bsonType: 'object',
+        required: ['ciudad', 'codigo_postal', 'direccion', 'telefono'],
+        properties: {
+          ciudad: {
+            bsonType: 'string',
+            description: 'La ciudad debe ser una cadena y es obligatoria.'
+          },
+          codigo_postal: {
+            bsonType: 'int',
+            minimum: 10000,
+            maximum: 99999,
+            description: 'El código postal debe ser un número entero entre 10000 y 99999.'
+          },
+          direccion: {
+            bsonType: 'string',
+            description: 'La dirección debe ser una cadena y es obligatoria.'
+          },
+          telefono: {
+            bsonType: 'string',
+            pattern: '^[0-9]{3}-[0-9]{7}$',
+            description: 'El teléfono debe incluir el indicativo (3 dígitos) seguido de un guion y un número de 7 dígitos.'
+          }
+        }
+      },
+      oferta_bebidas: {
+        bsonType: 'array',
+        items: {
+          bsonType: 'object',
+          required: ['nombre', 'tipo', 'horario', 'precio'],
+          properties: {
+            nombre: {
+              bsonType: 'string',
+              description: 'El nombre de la bebida debe ser una cadena.'
+            },
+            tipo: {
+              bsonType: 'string',
+              description: 'El tipo de bebida debe ser una cadena.'
+            },
+            grado_alcohol: {
+              bsonType: 'int',
+              minimum: 0,
+              description: 'El grado de alcohol debe ser un número entero mayor o igual a 0 (opcional).'
+            },
+            horario: {
+              bsonType: 'string',
+              enum: ['diurno', 'nocturno', 'todos'],
+              description: 'El horario debe ser "diurno", "nocturno" o "todos".'
+            },
+            precio: {
+              bsonType: 'int',
+              minimum: 0,
+              description: 'El precio debe ser un número entero mayor o igual a 0.'
+            }
+          }
+        },
+        description: 'La oferta de bebidas debe ser un arreglo de objetos con nombre, tipo, horario, y precio. El grado de alcohol es opcional.'
+      }
+    }
+  }
+}
+
+// INSERCION DE 20 NUEVOS BARES 
+
+db.bares.insertMany([
+  {
+    "_id": 63,
+    "nombre": "Bar Espectro",
+    "presupuesto": "Medio",
+    "cant_sedes": 2,
+    "direccion": {
+      "ciudad": "Bogotá",
+      "codigo_postal": 11011,
+      "direccion": "Calle 45 con carrera 12",
+      "telefono": "601-1234567"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Margarita", "tipo": "coctel", "horario": "nocturno", "precio": 25000 },
+      { "nombre": "Cerveza Negra", "tipo": "cerveza", "horario": "todos", "precio": 15000 }
+    ]
+  },
+  {
+    "_id": 64,
+    "nombre": "La Cava del Mundo",
+    "presupuesto": "Alto",
+    "cant_sedes": 3,
+    "direccion": {
+      "ciudad": "Medellín",
+      "codigo_postal": 12010,
+      "direccion": "Calle 10 con carrera 25",
+      "telefono": "604-2345678"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Vino Tinto", "tipo": "vino", "horario": "todos", "precio": 45000 },
+      { "nombre": "Whisky 18 años", "tipo": "whisky", "horario": "nocturno", "precio": 120000 }
+    ]
+  },
+  {
+    "_id": 65,
+    "nombre": "El Rincón de la Cerveza",
+    "presupuesto": "Bajo",
+    "cant_sedes": 1,
+    "direccion": {
+      "ciudad": "Cartagena",
+      "codigo_postal": 13001,
+      "direccion": "Calle 22 con carrera 5",
+      "telefono": "605-3456789"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Club Colombia", "tipo": "cerveza", "horario": "todos", "precio": 8000 },
+      { "nombre": "Corona", "tipo": "cerveza", "horario": "diurno", "precio": 9000 }
+    ]
+  },
+  {
+    "_id": 66,
+    "nombre": "La Taberna del Pirata",
+    "presupuesto": "Medio",
+    "cant_sedes": 4,
+    "direccion": {
+      "ciudad": "Barranquilla",
+      "codigo_postal": 11020,
+      "direccion": "Calle 50 con carrera 20",
+      "telefono": "605-4567890"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Ron Cartagena", "tipo": "ron", "horario": "nocturno", "precio": 30000 },
+      { "nombre": "Cuba Libre", "tipo": "coctel", "horario": "todos", "precio": 20000 }
+    ]
+  },
+  {
+    "_id": 67,
+    "nombre": "Las Gotas Doradas",
+    "presupuesto": "Alto",
+    "cant_sedes": 1,
+    "direccion": {
+      "ciudad": "Santa Marta",
+      "codigo_postal": 47000,
+      "direccion": "Calle 11 con carrera 8",
+      "telefono": "605-5678901"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Tequila Sunrise", "tipo": "coctel", "horario": "todos", "precio": 35000 },
+      { "nombre": "Espresso Martini", "tipo": "coctel", "horario": "diurno", "precio": 40000 }
+    ]
+  },
+  {
+    "_id": 68,
+    "nombre": "Bar Tropical",
+    "presupuesto": "Medio",
+    "cant_sedes": 1,
+    "direccion": {
+      "ciudad": "Leticia",
+      "codigo_postal": 91001,
+      "direccion": "Calle 3 con carrera 2",
+      "telefono": "608-8901234"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Caipirinha", "tipo": "coctel", "horario": "diurno", "precio": 25000 },
+      { "nombre": "Piña Colada", "tipo": "coctel", "horario": "todos", "precio": 30000 }
+    ]
+  },
+  {
+    "_id": 69,
+    "nombre": "La Cantina Mexicana",
+    "presupuesto": "Medio",
+    "cant_sedes": 2,
+    "direccion": {
+      "ciudad": "Montería",
+      "codigo_postal": 23000,
+      "direccion": "Calle 10 con carrera 8",
+      "telefono": "604-9012345"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Mezcal", "tipo": "licor", "horario": "nocturno", "precio": 20000 },
+      { "nombre": "Michelada", "tipo": "cerveza", "horario": "todos", "precio": 15000 }
+    ]
+  },
+  {
+    "_id": 70,
+    "nombre": "El Oasis Nocturno",
+    "presupuesto": "Alto",
+    "cant_sedes": 1,
+    "direccion": {
+      "ciudad": "Bogotá",
+      "codigo_postal": 11121,
+      "direccion": "Calle 15 con carrera 45",
+      "telefono": "601-9123456"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Whisky 12 años", "tipo": "whisky", "horario": "todos", "precio": 75000 },
+      { "nombre": "Ginebra Premium", "tipo": "licor", "horario": "diurno", "precio": 50000 }
+    ]
+  },
+  {
+    "_id": 71,
+    "nombre": "Bar Los Andes",
+    "presupuesto": "Medio",
+    "cant_sedes": 3,
+    "direccion": {
+      "ciudad": "Pasto",
+      "codigo_postal": 52001,
+      "direccion": "Calle 7 con carrera 18",
+      "telefono": "602-2345678"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Cerveza Águila", "tipo": "cerveza", "horario": "diurno", "precio": 8000 },
+      { "nombre": "Ron Medellín", "tipo": "ron", "horario": "nocturno", "precio": 25000 }
+    ]
+  },
+  {
+    "_id": 72,
+    "nombre": "El Bar del Sol",
+    "presupuesto": "Bajo",
+    "cant_sedes": 2,
+    "direccion": {
+      "ciudad": "Cali",
+      "codigo_postal": 76002,
+      "direccion": "Calle 20 con carrera 10",
+      "telefono": "602-1236789"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Tequila", "tipo": "licor", "horario": "todos", "precio": 20000 },
+      { "nombre": "Vodka Tonic", "tipo": "coctel", "horario": "nocturno", "precio": 18000 }
+    ]
+  },
+  {
+    "_id": 73,
+    "nombre": "La Playa Bar",
+    "presupuesto": "Medio",
+    "cant_sedes": 1,
+    "direccion": {
+      "ciudad": "Santa Marta",
+      "codigo_postal": 47001,
+      "direccion": "Calle 1 con carrera 15",
+      "telefono": "605-3456789"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Piña Colada", "tipo": "coctel", "horario": "diurno", "precio": 22000 },
+      { "nombre": "Mojito", "tipo": "coctel", "horario": "todos", "precio": 25000 }
+    ]
+  },
+  {
+    "_id": 74,
+    "nombre": "Taberna La Montaña",
+    "presupuesto": "Alto",
+    "cant_sedes": 2,
+    "direccion": {
+      "ciudad": "Manizales",
+      "codigo_postal": 17001,
+      "direccion": "Calle 25 con carrera 12",
+      "telefono": "606-5678901"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Ron Añejo", "tipo": "ron", "horario": "todos", "precio": 35000 },
+      { "nombre": "Gin Fizz", "tipo": "coctel", "horario": "nocturno", "precio": 28000 }
+    ]
+  },
+  {
+    "_id": 75,
+    "nombre": "El Refugio del Mar",
+    "presupuesto": "Medio",
+    "cant_sedes": 1,
+    "direccion": {
+      "ciudad": "Cartagena",
+      "codigo_postal": 13002,
+      "direccion": "Calle 3 con carrera 9",
+      "telefono": "605-6789012"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Cerveza Corona", "tipo": "cerveza", "horario": "todos", "precio": 12000 },
+      { "nombre": "Margarita", "tipo": "coctel", "horario": "diurno", "precio": 18000 }
+    ]
+  },
+  {
+    "_id": 76,
+    "nombre": "Bar El Amanecer",
+    "presupuesto": "Bajo",
+    "cant_sedes": 3,
+    "direccion": {
+      "ciudad": "Medellín",
+      "codigo_postal": 12021,
+      "direccion": "Calle 12 con carrera 45",
+      "telefono": "604-7890123"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Cerveza Poker", "tipo": "cerveza", "horario": "diurno", "precio": 7000 },
+      { "nombre": "Ron Blanco", "tipo": "ron", "horario": "todos", "precio": 20000 }
+    ]
+  },
+  {
+    "_id": 77,
+    "nombre": "La Bodega de Oro",
+    "presupuesto": "Alto",
+    "cant_sedes": 1,
+    "direccion": {
+      "ciudad": "Barranquilla",
+      "codigo_postal": 11030,
+      "direccion": "Calle 18 con carrera 20",
+      "telefono": "605-8901234"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Ron Añejo 12 años", "tipo": "ron", "horario": "nocturno", "precio": 45000 },
+      { "nombre": "Gin Hendrick's", "tipo": "gin", "horario": "todos", "precio": 70000 }
+    ]
+  },
+  {
+    "_id": 78,
+    "nombre": "El Rancho del Tequila",
+    "presupuesto": "Medio",
+    "cant_sedes": 2,
+    "direccion": {
+      "ciudad": "Cali",
+      "codigo_postal": 76002,
+      "direccion": "Calle 45 con carrera 15",
+      "telefono": "602-9012345"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Tequila Don Julio", "tipo": "tequila", "horario": "todos", "precio": 50000 },
+      { "nombre": "Margarita Clásica", "tipo": "coctel", "horario": "diurno", "precio": 22000 }
+    ]
+  },
+  {
+    "_id": 79,
+    "nombre": "Taberna La 70",
+    "presupuesto": "Bajo",
+    "cant_sedes": 3,
+    "direccion": {
+      "ciudad": "Medellín",
+      "codigo_postal": 12001,
+      "direccion": "Calle 70 con carrera 5",
+      "telefono": "604-2345678"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Cerveza Águila", "tipo": "cerveza", "horario": "diurno", "precio": 6000 },
+      { "nombre": "Cerveza Club Colombia", "tipo": "cerveza", "horario": "todos", "precio": 7500 }
+    ]
+  },
+  {
+    "_id": 80,
+    "nombre": "El Trópico Bar",
+    "presupuesto": "Medio",
+    "cant_sedes": 2,
+    "direccion": {
+      "ciudad": "Santa Marta",
+      "codigo_postal": 47003,
+      "direccion": "Calle 12 con carrera 15",
+      "telefono": "605-3456789"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Piña Colada", "tipo": "coctel", "horario": "diurno", "precio": 25000 },
+      { "nombre": "Coco Loco", "tipo": "coctel", "horario": "todos", "precio": 30000 }
+    ]
+  },
+  {
+    "_id": 81,
+    "nombre": "El Faro del Caribe",
+    "presupuesto": "Alto",
+    "cant_sedes": 1,
+    "direccion": {
+      "ciudad": "Cartagena",
+      "codigo_postal": 13003,
+      "direccion": "Calle 20 con carrera 25",
+      "telefono": "605-4567890"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Ron Zacapa", "tipo": "ron", "horario": "todos", "precio": 120000 },
+      { "nombre": "Vino Espumoso", "tipo": "vino", "horario": "nocturno", "precio": 90000 }
+    ]
+  },
+  {
+    "_id": 82,
+    "nombre": "La Estación Bar",
+    "presupuesto": "Medio",
+    "cant_sedes": 2,
+    "direccion": {
+      "ciudad": "Pereira",
+      "codigo_postal": 66002,
+      "direccion": "Calle 30 con carrera 10",
+      "telefono": "606-5678901"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Mojito Tradicional", "tipo": "coctel", "horario": "diurno", "precio": 22000 },
+      { "nombre": "Caipirinha", "tipo": "coctel", "horario": "todos", "precio": 18000 }
+    ]
+  },
+  {
+    "_id": 83,
+    "nombre": "Taberna El Caminante",
+    "presupuesto": "Medio",
+    "cant_sedes": 3,
+    "direccion": {
+      "ciudad": "Bogotá",
+      "codigo_postal": 11021,
+      "direccion": "Calle 10 con carrera 45",
+      "telefono": "601-6789012"
+    },
+    "oferta_bebidas": [
+      { "nombre": "Whisky Johnnie Walker", "tipo": "whisky", "horario": "todos", "precio": 85000 },
+      { "nombre": "Ron Añejo", "tipo": "ron", "horario": "diurno", "precio": 30000 }
+    ]
+  }
+]);
+
+// SCRIPT PARA AGREGAR LA DIRECCION EN LOS DOCUMENTOS NO ACTUALIZADOS
+
+db.bares.updateMany(
+  { direccion: { $exists: false } }, 
+  [
+    {
+      $set: {
+        direccion: {
+          ciudad: "$ciudad",
+          codigo_postal: {
+            $toInt: {
+              $add: [
+                { $multiply: [{ $rand: {} }, 90000] }, 10000
+              ]
+            }
+          },
+          direccion: {
+            $concat: [
+              "Calle ",
+              { $toString: { $floor: { $add: [{ $multiply: [{ $rand: {} }, 150] }, 1] } } }, 
+              " con carrera ",
+              { $toString: { $floor: { $add: [{ $multiply: [{ $rand: {} }, 150] }, 1] } } }  
+            ]
+          },
+          telefono: {
+            $concat: [
+              {
+                $switch: {
+                  branches: [
+                    { case: { $eq: ["$ciudad", "Barranquilla"] }, then: "605" },
+                    { case: { $eq: ["$ciudad", "Bogota"] }, then: "601" },
+                    { case: { $eq: ["$ciudad", "Bogotá"] }, then: "601" },
+                    { case: { $eq: ["$ciudad", "Cali"] }, then: "602" },
+                    { case: { $eq: ["$ciudad", "Cartagena"] }, then: "605" },
+                    { case: { $eq: ["$ciudad", "Leticia"] }, then: "608" },
+                    { case: { $eq: ["$ciudad", "Manizales"] }, then: "606" },
+                    { case: { $eq: ["$ciudad", "Medellin"] }, then: "604" },
+                    { case: { $eq: ["$ciudad", "Medellín"] }, then: "604" },
+                    { case: { $eq: ["$ciudad", "Montería"] }, then: "604" },
+                    { case: { $eq: ["$ciudad", "Pasto"] }, then: "602" },
+                    { case: { $eq: ["$ciudad", "Pereira"] }, then: "606" },
+                    { case: { $eq: ["$ciudad", "Santa Marta"] }, then: "605" }
+                  ],
+                  default: "000"
+                }
+              },
+              "-",
+              { 
+                $substr: [
+                  { $toString: { $add: [{ $multiply: [{ $rand: {} }, 9000000] }, 1000000] } },
+                  0,
+                  7
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+);
+
+
+// SCRIPT PARA ELIMINAR EL CAMPO DE CIUDAD (REPETITIVO) 
+
+db.bares.updateMany(
+  { ciudad: { $exists: true } }, 
+  { $unset: { ciudad: "" } }
+);

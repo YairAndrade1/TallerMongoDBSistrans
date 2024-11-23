@@ -1,0 +1,64 @@
+Script Punto 3
+
+// SCRIPT CONSULTAR BARES CON EL MISMO CODIGO POSTAL 
+
+db.bares.find({ "direccion.codigo_postal": <codigo_postal_parametro> })
+
+// SCRIPT CONSULTAR BEBEDORES QUE FRECUENTAN ENTRE 10 Y 20 BARES
+
+db.bebedores.aggregate([
+  {
+    $match: {
+      bares_frecuentados: { $exists: true, $type: "array" }    }
+  },
+  {
+    $project: {
+      nombre: 1,
+      bares_frecuentados: 1,
+      total_bares: { $size: "$bares_frecuentados" }   }
+  },
+  {
+    $match: {
+      total_bares: { $gte: 10, $lte: 20 }     }
+  },
+  {
+    $project: {
+      _id: 0, 
+      nombre: 1,
+      bares_frecuentados: 1
+    }
+  }
+]);
+
+// SCRIPT PARA CONSULTAR EL TIPO DE BAR MAS FRECUENTADO DE CADA CIUDAD
+
+db.bares.aggregate([
+  {
+    $group: {
+      _id: {
+        ciudad: "$direccion.ciudad", 
+        presupuesto: "$presupuesto" 
+      },
+      total_bares: { $sum: 1 } 
+    }
+  },
+  {
+    $sort: { "_id.ciudad": 1, total_bares: -1 } 
+  },
+  {
+    $group: {
+      _id: "$_id.ciudad", 
+      tipo_presupuesto_mas_comun: { $first: "$_id.presupuesto" }, 
+      total_bares: { $first: "$total_bares" } 
+    }
+  },
+  {
+    $project: {
+      _id: 0, 
+      ciudad: "$_id",
+      tipo_presupuesto_mas_comun: 1,
+      total_bares: 1
+    }
+  }
+]);
+
